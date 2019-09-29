@@ -1,0 +1,10 @@
+spring:
+   profiles:
+      active: support
+      
+com:
+   thinkenterprise:
+      graphqlio:
+         server:
+            endpoint: /api/data/graph
+        
