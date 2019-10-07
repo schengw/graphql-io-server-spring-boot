@@ -4,8 +4,13 @@ schema {
 
 type Query { 
 	routes:[Route]
+	_Subscribe: GraphQLIOSubscription
 }
  
+type GraphQLIOSubscription {
+	subscribe:String
+}
+
 type Route {
 	id: ID!
 	flightNumber: String!

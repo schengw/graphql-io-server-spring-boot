@@ -17,7 +17,7 @@ public class QueryResolver implements GraphQLQueryResolver {
 	}
 
 	
-	public List<Route> getRoutes() {
+	public List<Route> routes() {
 		return routeRepository.findAll();
 	} 
 	

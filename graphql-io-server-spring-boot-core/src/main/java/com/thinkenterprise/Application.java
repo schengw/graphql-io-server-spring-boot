@@ -22,14 +22,9 @@ package com.thinkenterprise;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.messaging.converter.MessageConverter;
-import org.springframework.web.socket.adapter.standard.StandardWebSocketHandlerAdapter;
-import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
 
 @SpringBootApplication
 public class Application {
-	
-	
 	
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

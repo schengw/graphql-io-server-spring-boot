@@ -3,21 +3,18 @@ package com.thinkenterprise.graphqlio.server.schema;
 import java.io.IOException;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
-
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import com.coxautodev.graphql.tools.SchemaParser;
+import com.thinkenterprise.graphqlio.server.autoconfiguration.GraphQLIOProperties;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 
 import graphql.schema.GraphQLSchema;
 
 
-@Component
-public class DefaultGraphQLIOSchemaCreator implements GraphQLIOSchemaCreator{
+public class GraphQLIOSimpleSchemaCreator implements GraphQLIOSchemaCreator {
 
 	@Autowired(required = false)
 	List<GraphQLResolver<?>> resolvers;
@@ -25,14 +22,14 @@ public class DefaultGraphQLIOSchemaCreator implements GraphQLIOSchemaCreator{
 	@Autowired
 	private ApplicationContext applicationContext;
 	
-	@Value("${graphql.tools.schemaLocationPattern:**/*.graphql}")
-	private String schemaLocationPattern;
+	@Autowired
+	private GraphQLIOProperties graphqlioProperties;
 
 	
 	@Override
 	public GraphQLSchema create() {
 		
-
+		// @Fixme : Some other parameter like Scalars, should be configured 
 		GraphQLSchema  graphQLSchema = SchemaParser.newParser()
 		               							.files(getFiles())
 		               						    .resolvers(resolvers)
@@ -41,8 +38,6 @@ public class DefaultGraphQLIOSchemaCreator implements GraphQLIOSchemaCreator{
 			          
 		
 		return graphQLSchema;
-		
-	
 		
 	}
 	
@@ -53,7 +48,8 @@ public class DefaultGraphQLIOSchemaCreator implements GraphQLIOSchemaCreator{
 		String[] files = null;
 		
 		try {
-			resources = applicationContext.getResources("classpath*:" + schemaLocationPattern);
+
+	   		resources = applicationContext.getResources("classpath*:" + graphqlioProperties.getSchemaLocationPattern());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
