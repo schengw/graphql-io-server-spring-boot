@@ -7,8 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class GraphQLIORootQueryResolver implements GraphQLQueryResolver {
 
-    public GraphQLIOSubscription _Subscribe() {
+    public GraphQLIOSubscription _Subscription() {
         return new GraphQLIOSubscription();
     } 
 
+    
 }

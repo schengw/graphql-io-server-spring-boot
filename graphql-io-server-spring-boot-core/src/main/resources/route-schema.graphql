@@ -4,7 +4,8 @@ schema {
 
 type Query { 
 	routes:[Route]
-	_Subscribe: GraphQLIOSubscription
+	
+	_Subscription: GraphQLIOSubscription
 }
  
 type GraphQLIOSubscription {

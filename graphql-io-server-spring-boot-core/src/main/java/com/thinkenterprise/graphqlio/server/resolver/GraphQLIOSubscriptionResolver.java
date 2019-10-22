@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GraphQLIOSubscriptionResolver implements GraphQLResolver<GraphQLIOSubscription> {
 
+    
     public String subscribe(GraphQLIOSubscription subscription) {
         return "UUID";
     }

@@ -12,10 +12,14 @@ public class GraphQLIOClient {
 
     public static void main(String[] args)  {
         try {
+            
             WebSocketClient webSocketClient = new StandardWebSocketClient();
             WebSocketSession webSocketSession = webSocketClient.doHandshake(new StandardClientTextWebSocketHandler(), new WebSocketHttpHeaders(), URI.create("ws://127.0.0.1:8080/api/data/graph")).get();
-            webSocketSession.sendMessage(new TextMessage("[1,0,\"GRAPHQL-REQUEST\",{\"query\":\"{ hello } \"}]"));
-            Thread.sleep(1000);
+            int i = 0;
+            while(i++<10) {
+              webSocketSession.sendMessage(new TextMessage("[1,0,\"GRAPHQL-REQUEST\",{\"query\":\"{ routes { id } } \"}]"));
+              Thread.sleep(5000);
+            }
             webSocketSession.close(); 
         } catch (Exception e) {
             e.printStackTrace(); 

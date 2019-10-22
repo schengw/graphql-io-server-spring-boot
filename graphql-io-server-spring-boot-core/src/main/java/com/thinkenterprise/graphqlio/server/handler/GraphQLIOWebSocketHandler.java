@@ -47,6 +47,9 @@ public class GraphQLIOWebSocketHandler extends AbstractWebSocketHandler {
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {		
 		
 		logger.info("GraphQLIO Handler received graphqlio message :" + message.getPayload());
+		logger.info("GraphQLIO Handler session :" + session);
+		logger.info("GraphQLIO Handler session ID :" + session.getId());
+		logger.info("GraphQLIO Handler this :" + this);
 
 		// Convert Frame to Message 
 		GraphQLIOMessage requestMessage = graphQLIOSimpleMessage2FrameConverter.from(message.getPayload());
