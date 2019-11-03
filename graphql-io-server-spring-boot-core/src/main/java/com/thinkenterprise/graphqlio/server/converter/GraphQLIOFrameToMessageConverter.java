@@ -2,9 +2,8 @@ package com.thinkenterprise.graphqlio.server.converter;
 
 import com.thinkenterprise.graphqlio.server.domain.GraphQLIOMessage;
 
-public interface GraphQLIOMessage2FrameConverter {
+public interface GraphQLIOFrameToMessageConverter {
 	
-	GraphQLIOMessage from(String frame);
-	String to(GraphQLIOMessage message);
+	GraphQLIOMessage convert(String frame);
 
 }

@@ -11,13 +11,14 @@ import com.thinkenterprise.graphqlio.server.exception.GraphQLIOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
-public class GraphQLIOSimpleMessage2FrameConverter implements GraphQLIOMessage2FrameConverter {
+public class GraphQLIOFrameToRequestMessageConverter implements GraphQLIOFrameToMessageConverter {
 
 	@Autowired
 	private ObjectMapper objectMapper;
 
+
 	@Override
-	public GraphQLIOMessage from(String message) {
+	public GraphQLIOMessage convert(String frame) {
 
 		String fid;
 		String rid;
@@ -25,11 +26,11 @@ public class GraphQLIOSimpleMessage2FrameConverter implements GraphQLIOMessage2F
 		String data;
 
 		// Delete not nedded characters 
-		message = StringUtils.deleteAny(message, "[");
-		message = StringUtils.deleteAny(message, "]");
+		frame = StringUtils.deleteAny(frame, "[");
+		frame = StringUtils.deleteAny(frame, "]");
 
 		// Tokenize String 
-		String[] messageValues = StringUtils.tokenizeToStringArray(message, ",");
+		String[] messageValues = StringUtils.tokenizeToStringArray(frame, ",");
 
 		// Check count of values 
 		if (messageValues.length != 4)
@@ -68,16 +69,7 @@ public class GraphQLIOSimpleMessage2FrameConverter implements GraphQLIOMessage2F
 		return  GraphQLIOMessage.builder().fid(fid).rid(rid).type(type).data(data).build();
 	}
 
-	@Override
-	public String to(GraphQLIOMessage message) {
 
-		// Currently the converter supports only one message type 
-		if(message.getType()!=GraphQLIOMessageType.GRAPQLRESPONSE)
-			throw new GraphQLIOException();
-
-		// Create Frame for message Type 
-		String frame = "[" + message.getFid() + "," + message.getRid() + "," + "\""+ GraphQLIOMessageType.GRAPQLRESPONSE + "\"" + "," + message.getData() + "]";
-		return frame;
-	}
+	
 
 }

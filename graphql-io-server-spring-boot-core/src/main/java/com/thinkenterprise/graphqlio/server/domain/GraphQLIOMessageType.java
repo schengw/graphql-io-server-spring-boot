@@ -12,6 +12,12 @@ public enum GraphQLIOMessageType {
         public String toString() {
             return "GRAPHQL-RESPONSE";
         }
+    },
+    GRAPQLNOTIFIER {
+        @Override
+        public String toString() {
+            return "GRAPHQL-NOTIFIER";
+        }
     }
     
 }

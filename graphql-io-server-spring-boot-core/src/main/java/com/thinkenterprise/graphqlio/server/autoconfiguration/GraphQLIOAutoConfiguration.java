@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.thinkenterprise.graphqlio.server.converter.GraphQLIOMessage2FrameConverter;
-import com.thinkenterprise.graphqlio.server.converter.GraphQLIOSimpleMessage2FrameConverter;
+import com.thinkenterprise.graphqlio.server.converter.GraphQLIOFrameToRequestMessageConverter;
+import com.thinkenterprise.graphqlio.server.converter.GraphQLIONotifierMessageToFrameConverter;
+import com.thinkenterprise.graphqlio.server.converter.GraphQLIOResponseMessageToFrameConverter;
 import com.thinkenterprise.graphqlio.server.execution.GraphQLIOQueryExecutionStrategy;
 import com.thinkenterprise.graphqlio.server.execution.GraphQLIOSimpleQueryExecutionStrategie;
 import com.thinkenterprise.graphqlio.server.handler.GraphQLIOWebSocketHandler;
@@ -22,7 +23,7 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 @Configuration
-@EnableConfigurationProperties( GraphQLIOProperties.class)
+@EnableConfigurationProperties(GraphQLIOProperties.class)
 @EnableWebSocket
 public class GraphQLIOAutoConfiguration implements WebSocketConfigurer {
 
@@ -39,8 +40,20 @@ public class GraphQLIOAutoConfiguration implements WebSocketConfigurer {
 	
 	@Bean
 	@ConditionalOnMissingBean
-    public GraphQLIOMessage2FrameConverter graphQLIOMessage2FrameConverter() {
-        return new GraphQLIOSimpleMessage2FrameConverter();
+    public GraphQLIOFrameToRequestMessageConverter graphQLIOFrameToRequestMessageConverter() {
+        return new GraphQLIOFrameToRequestMessageConverter();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+    public GraphQLIOResponseMessageToFrameConverter graphQLIOResponseMessageToFrameConverter() {
+        return new GraphQLIOResponseMessageToFrameConverter();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+    public GraphQLIONotifierMessageToFrameConverter graphQLIONotifierMessageToFrameConverter() {
+        return new GraphQLIONotifierMessageToFrameConverter();
 	}
 	
 	@Bean

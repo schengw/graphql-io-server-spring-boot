@@ -152,7 +152,7 @@ The frame itself is encoded with either the object serialization format JavaScri
 ##### Life Cycle
 The sequence of interactions between an endpoint instance and remote peer is in Java API for WebSocket modelled by javax.websocket.Session instance. This interaction starts by mandatory open notification, continues by 0 - n websocket messages and is finished by mandatory closing notification.
 
-##### 
+##### Scope 
 
 
 

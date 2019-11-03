@@ -1,6 +1,7 @@
 package com.thinkenterprise.graphqlio.server;
 
 import com.thinkenterprise.graphqlio.server.domain.GraphQLIOMessage;
+import com.thinkenterprise.graphqlio.server.domain.GraphQLIOScope;
 
 import org.springframework.web.socket.WebSocketSession;
 
@@ -12,12 +13,18 @@ public class GraphQLIOContext {
 	private GraphQLSchema graphQLSchema;
 	private GraphQLIOMessage requestMessage;
 	private GraphQLIOMessage responseMessage;
+	private GraphQLIOScope scope;
 
 	private GraphQLIOContext(Builder builder) {
 		this.webSocketSession=builder.webSocketSession;
 		this.graphQLSchema=builder.graphQLSchema;
 		this.requestMessage=builder.requestMessage;
 		this.responseMessage=builder.responseMessage;
+		this.scope=builder.scope;
+	}
+
+	public GraphQLIOScope getScope() {
+		return this.scope;
 	}
 
 	public WebSocketSession getWebSocketSession() {
@@ -54,6 +61,7 @@ public class GraphQLIOContext {
 		private GraphQLSchema graphQLSchema;
 		private GraphQLIOMessage requestMessage;
 		private GraphQLIOMessage responseMessage;
+		private GraphQLIOScope scope;
 
 		private Builder() {
 
@@ -76,6 +84,11 @@ public class GraphQLIOContext {
 
 		public Builder responseMessage(GraphQLIOMessage responseMessage) {
 			this.responseMessage = responseMessage;
+			return this;
+		}
+
+		public Builder scope(GraphQLIOScope scope) {
+			this.scope=scope;
 			return this;
 		}
 

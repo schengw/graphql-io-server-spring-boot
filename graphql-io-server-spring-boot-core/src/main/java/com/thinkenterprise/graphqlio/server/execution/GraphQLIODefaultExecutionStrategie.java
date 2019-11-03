@@ -12,7 +12,7 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 
-public class GraphQLIOSimpleQueryExecutionStrategie implements GraphQLIOQueryExecutionStrategy {
+public class GraphQLIODefaultExecutionStrategie implements GraphQLIOExecutionStrategy {
 
 	@Autowired
 	private ObjectMapper objectMapper;
