@@ -17,7 +17,7 @@ public class GraphQLIOEvaluation {
 
     public List<String> evaluateOutdatedSids(GraphQLIOScope scope) {
         // ToDo : Implementation of the Algorithm 
-        // Descrption : Activity Diagramm 
+        // Description : Activity Diagramm 
         // Source : https://github.com/rse/graphql-tools-subscribe/blob/master/src/gts-3-evaluation.js
         //          __scopeProcess (scope)
         return null;
@@ -41,20 +41,21 @@ public class GraphQLIOEvaluation {
     }
 
     private String recordStringify(GraphQLIORecord record) {
-        // ToDo : Implementation of the Convertion from record to string
-        // Description : Edgar 
+        // Description : Serialize/Serialize GraphQLIORecord to String according regular expression
+    	//               "^(?:(.+?)#(.+?)\.(.+?)->)?(.+?)\((.+?)\)->(.+?)#\{(.*?)\}\.\{(.+?)\}$" 
         // Source : https://github.com/rse/graphql-tools-subscribe/blob/master/src/gts-3-evaluation.js
         //           __recordStringify {
-        return null;
-
+    	
+		return record.stringify();
     }
 
     private GraphQLIORecord recordUnstringify(String record) {
-        // ToDo : Implementation of the Convertion from string to record
-        // Description : Edgar 
+        // Description : Unserialize/Unstringfy String into GraphQLIORecord using regular expression
+    	// 				 "^(?:(.+?)#(.+?)\.(.+?)->)?(.+?)\((.+?)\)->(.+?)#\{(.*?)\}\.\{(.+?)\}$" 
         // Source : https://github.com/rse/graphql-tools-subscribe/blob/master/src/gts-3-evaluation.js
         //            __recordUnstringify 
-        return null;
+    	
+    	return GraphQLIORecord.builder().stringified(record).build();
     }
 
 
