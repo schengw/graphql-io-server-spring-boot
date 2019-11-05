@@ -7,8 +7,8 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.thinkenterprise.graphqlio.server.converter.GraphQLIOFrameToRequestMessageConverter;
 import com.thinkenterprise.graphqlio.server.converter.GraphQLIONotifierMessageToFrameConverter;
 import com.thinkenterprise.graphqlio.server.converter.GraphQLIOResponseMessageToFrameConverter;
-import com.thinkenterprise.graphqlio.server.execution.GraphQLIOQueryExecutionStrategy;
-import com.thinkenterprise.graphqlio.server.execution.GraphQLIOSimpleQueryExecutionStrategie;
+import com.thinkenterprise.graphqlio.server.execution.GraphQLIODefaultExecutionStrategie;
+import com.thinkenterprise.graphqlio.server.execution.GraphQLIOExecutionStrategy;
 import com.thinkenterprise.graphqlio.server.handler.GraphQLIOWebSocketHandler;
 import com.thinkenterprise.graphqlio.server.schema.GraphQLIOSchemaCreator;
 import com.thinkenterprise.graphqlio.server.schema.GraphQLIOSimpleSchemaCreator;
@@ -64,8 +64,8 @@ public class GraphQLIOAutoConfiguration implements WebSocketConfigurer {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public GraphQLIOQueryExecutionStrategy graphQLIOQueryExecutionStrategy() {
-		return new GraphQLIOSimpleQueryExecutionStrategie();
+	public GraphQLIOExecutionStrategy graphQLIOQueryExecutionStrategy() {
+		return new GraphQLIODefaultExecutionStrategie();
 	}
 
 	@Bean

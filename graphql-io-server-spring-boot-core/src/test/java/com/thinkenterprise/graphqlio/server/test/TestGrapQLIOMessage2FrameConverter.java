@@ -1,6 +1,6 @@
 package com.thinkenterprise.graphqlio.server.test;
 
-import com.thinkenterprise.graphqlio.server.converter.GraphQLIOMessage2FrameConverter;
+import com.thinkenterprise.graphqlio.server.converter.GraphQLIOFrameToRequestMessageConverter;
 import com.thinkenterprise.graphqlio.server.domain.GraphQLIOMessage;
 
 import org.junit.Assert;
@@ -15,13 +15,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TestGrapQLIOMessage2FrameConverter {
 
 	@Autowired
-	private GraphQLIOMessage2FrameConverter graphQLIOMessageConverter;
+	private GraphQLIOFrameToRequestMessageConverter graphQLIOMessageConverter;
 	
 	@Test
 	public void graphQLIOMessageConverter() {
 		
 		String inputMessage = "[1,0,\"GRAPHQL-REQUEST\",{\"query\":\"{ routes { id } }\"}]";
-		GraphQLIOMessage graphQLIOMessage = graphQLIOMessageConverter.from(inputMessage);
+		GraphQLIOMessage graphQLIOMessage = graphQLIOMessageConverter.convert(inputMessage);
 		Assert.assertTrue(graphQLIOMessage.getRid().equals("0"));
 		
 		
