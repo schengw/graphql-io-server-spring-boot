@@ -1,5 +1,8 @@
 package com.thinkenterprise.graphqlio.server.domain;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +39,11 @@ public class GraphQLIORecord {
 			else
 				this.op = "";
 		}
-
+		
+		
+		public static EnumSet<GraphQLIOOperationType> cud = EnumSet.range(GraphQLIOOperationType.CREATE, GraphQLIOOperationType.DELETE );
+		public static EnumSet<GraphQLIOOperationType> ud = EnumSet.range(GraphQLIOOperationType.UPDATE, GraphQLIOOperationType.DELETE);
+				
 	}
 
 	
@@ -64,6 +71,9 @@ public class GraphQLIORecord {
 			else
 				this.arity = "";
 		}
+
+		public static EnumSet<GraphQLIOArityType> multi = EnumSet.range(GraphQLIOArityType.MANY, GraphQLIOArityType.ALL );
+		
 		
 	}
 		
@@ -126,48 +136,20 @@ public class GraphQLIORecord {
 				", dstIds = " + "[" + String.join(",", dstIds) + "]" +
 				")";
 	}
-		
-	private boolean compareString( String str1, String str2) {
-		
-		if (str1 == str2) return true;
-		if (str1 != null) {  // both != null
-			return str1.equals(str2);
-		}
-		else 
-			return true;  /// both null
-	}
-	
-	private boolean compare( String array1[], String array2[]) {
-
-		if ( array1 == array2) return true;
-		if ( array1 != null ) {
-			if (array1.length != array2.length )
-				return false;
-			else {
-				boolean isEqual = true;
-				for (int i=0; isEqual && i < array1.length; i++ ) {
-					isEqual = compareString(array1[i], array2[i]);					
-				}
-				return isEqual;
-			}
-		}
-		else
-			return true;	/// both null
-	}
-	
+			
 	@Override
 	public boolean equals( Object o) {
 		if (this == o) return true;	/// reference to same object
 		if ( !(o instanceof GraphQLIORecord) ) return false;
 		GraphQLIORecord r = (GraphQLIORecord)o;
-		return 	( 	compareString(this.srcType,r.srcType)	&& 
-					compareString(this.srcId, r.srcId)		&&  
-					compareString(this.srcAttr, r.srcAttr)	&&
-					compareString(this.op.op(), r.op.op())	&&
-					compareString(this.arity.arity(), r.arity.arity())		&&
-					compareString(this.dstType, r.dstType)	&&
-					compare(this.dstAttrs, r.dstAttrs)		&&
-					compare(this.dstIds, r.dstIds)	
+		return 	( 	Objects.equals(this.srcType,r.srcType)	&& 
+					Objects.equals(this.srcId, r.srcId)		&&  
+					Objects.equals(this.srcAttr, r.srcAttr)	&&
+					Objects.equals(this.op.op(), r.op.op())	&&
+					Objects.equals(this.arity.arity(), r.arity.arity())		&&
+					Objects.equals(this.dstType, r.dstType)	&&
+					Arrays.equals(this.dstAttrs, r.dstAttrs) &&
+					Arrays.equals(this.dstIds, r.dstIds)	
 				);
 	}
 	
@@ -259,7 +241,7 @@ public class GraphQLIORecord {
 		}
 		
 		public GraphQLIORecordBuilder (String stringifiedRecord) {	
-			
+			stringified(stringifiedRecord);
 		}
 
 		/// constructor with all mandatory fields
