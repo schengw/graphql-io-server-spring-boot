@@ -11,6 +11,8 @@ public class GraphQLIOScope {
 
     private String scopeId;
     private String connectionId = null;			//// default no connection `${this.uuid}:none`  ????
+    private String query;
+    private String variables;
     private GraphQLIOScopeState scopeState;
     private List<GraphQLIORecord> records = new ArrayList<>();
 
@@ -18,6 +20,9 @@ public class GraphQLIOScope {
         this.scopeId=builder.scopeId;
         this.connectionId=builder.connectionId;
         this.scopeState=builder.scopeState;
+        this.query=builder.query;
+        this.variables=builder.variables;
+        this.addRecord(GraphQLIORecord.builder().stringified(query).build());
     }
 
     public String getScopeId() {
@@ -54,7 +59,7 @@ public class GraphQLIOScope {
 
     public static final class Builder {
 
-        private String scopeId;
+        private String scopeId = null;
         private String connectionId = null;		//// default no connection `${this.uuid}:none`  ????
         private GraphQLIOScopeState scopeState = GraphQLIOScopeState.UNSUBSCRIBED;
         private String query;
@@ -67,8 +72,13 @@ public class GraphQLIOScope {
             this.query=query;
 			return this;
         }
-        public Builder withVariable(String variables) {
+        public Builder withVariables(String variables) {
             this.variables=variables;
+			return this;
+		}
+
+        public Builder withScopeId(String scopeId) {
+            this.scopeId=scopeId;
 			return this;
 		}
         
@@ -76,11 +86,19 @@ public class GraphQLIOScope {
             this.connectionId=connectionId;
 			return this;
 		}
+        
+        public Builder withState(GraphQLIOScopeState scopeState) {
+        	this.scopeState = scopeState;
+        	return this;
+        }
 		public GraphQLIOScope build() {
             // Build Process 
-            // scopeId = .... from query and varaibles and some other stuff 
-            this.scopeId = this.variables + this.query;
-            this.scopeId = UUID.randomUUID().toString();
+			
+			if (this.scopeId == null) {
+	            // scopeId = .... from query and variables and some other stuff 
+				///           this.scopeId = this.variables + this.query;
+	            this.scopeId = UUID.randomUUID().toString();
+			}
 			return new GraphQLIOScope(this);
 		} 
 

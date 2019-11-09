@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import com.thinkenterprise.graphqlio.server.domain.GraphQLIORecord.GraphQLIOArityType;
 import com.thinkenterprise.graphqlio.server.domain.GraphQLIORecord.GraphQLIOOperationType;
@@ -23,6 +25,7 @@ import com.thinkenterprise.graphqlio.server.keyvaluestore.KeyValStore;
 /**
  * GraphQLIOEvaluation
  */
+@Component
 public class GraphQLIOEvaluation {
 
     @Autowired
@@ -65,9 +68,11 @@ public class GraphQLIOEvaluation {
                  * [*#{*}.*->]update/delete(*)->Item#{1}.{name}
                  */
 
-                // Michael: ud lässt sich schwer lesen
-                if (GraphQLIOOperationType.ud.contains(recNew.op()) && recOld.dstType().equals(recNew.dstType())
-                        && overlap(recOld.dstIds(), recNew.dstIds()) && overlap(recOld.dstAttrs(), recNew.dstAttrs()))
+                if ((recNew.op() == GraphQLIOOperationType.UPDATE  ||
+                	 recNew.op() == GraphQLIOOperationType.DELETE   )   && 
+                	recOld.dstType().equals(recNew.dstType()) 			&& 
+                	overlap(recOld.dstIds(), recNew.dstIds()) 			&& 
+                	overlap(recOld.dstAttrs(), recNew.dstAttrs()))
                     outdated = true;
 
                 /*
@@ -76,10 +81,12 @@ public class GraphQLIOEvaluation {
                  * [*#{*}.*->]update(*)->Card#{1}.{items}
                  */
 
-                else if (recNew.op() == GraphQLIOOperationType.UPDATE && recOld.srcType() != null
-                        && recOld.srcType().equals(recNew.dstType())
-                        && overlap(new String[] { recOld.srcId() }, recNew.dstIds())
-                        && overlap(new String[] { recOld.srcAttr() }, recNew.dstAttrs()))
+                /// warum nicht Delete???
+                else if (recNew.op() == GraphQLIOOperationType.UPDATE 				&& 
+                		recOld.srcType() != null									&& 
+                		recOld.srcType().equals(recNew.dstType())					&& 
+                		overlap(new String[] { recOld.srcId() }, recNew.dstIds())	&& 
+                		overlap(new String[] { recOld.srcAttr() }, recNew.dstAttrs()))
                     outdated = true;
 
                 /*
@@ -87,9 +94,13 @@ public class GraphQLIOEvaluation {
                  * [*#{*}.*->]read(many/all)->Item#{*}.{id,name} new/mutation:
                  * [*#{*}.*->]create/update/delete(*)->Item#{*}.{name}
                  */
-                else if (GraphQLIOOperationType.cud.contains(recNew.op())
-                        && GraphQLIOArityType.multi.contains(recOld.arity())
-                        && recOld.dstType().equals(recNew.dstType()) && overlap(recOld.dstAttrs(), recNew.dstAttrs()))
+                else if ((recNew.op() == GraphQLIOOperationType.CREATE  ||
+                		  recNew.op() == GraphQLIOOperationType.UPDATE  ||
+                   	 	  recNew.op() == GraphQLIOOperationType.DELETE   )  && 
+                		 (recOld.arity() == GraphQLIOArityType.MANY     ||
+                		  recOld.arity() == GraphQLIOArityType.ALL       )	&& 
+                		 recOld.dstType().equals(recNew.dstType()) 			&& 
+                		 overlap(recOld.dstAttrs(), recNew.dstAttrs()))
                     outdated = true;
 
                 /* report outdate combination */
@@ -120,7 +131,15 @@ public class GraphQLIOEvaluation {
         if (list2.length == 1 && list2[0].equals("*"))
             return true;
 
-        return Arrays.asList(list1).retainAll(new HashSet<String>(Arrays.asList(list2)));
+        List<String> listA = new ArrayList<>(Arrays.asList(list1));
+        List<String> listB = new ArrayList<>(Arrays.asList(list2));
+
+        Set<String> result = listA.stream()
+        		  .distinct()
+        		  .filter(listB::contains)
+        		  .collect(Collectors.toSet());
+
+        return result.size() > 0;
     }
 
     public List<String> evaluateOutdatedSids(GraphQLIOScope scope) {
@@ -133,19 +152,40 @@ public class GraphQLIOEvaluation {
         String scopeId = scope.getScopeId();
         String connectionId = scope.getConnectionId();
 
+        /// Contains for a HashSet is O(1) compared to O(n) for a list, 
+        /// therefore we use hashset to check if a scope is outdated        
         HashMap<String, Boolean> outdatedSids = new HashMap<>();
 
         /* filter out write records in the scope */
         List<GraphQLIORecord> recordsWrite = scope.getRecords().stream()
-                .filter(r -> GraphQLIOOperationType.cud.contains(r.op())).collect(Collectors.toList());
+                .filter(r -> (r.op() == GraphQLIOOperationType.CREATE  ||
+                			  r.op() == GraphQLIOOperationType.UPDATE  ||
+                			  r.op() == GraphQLIOOperationType.DELETE   ))
+                			  .collect(Collectors.toList());
 
-        /* queries (scopes without writes)... */
+        
+        
+        
+        /* Check Workflow: which component is responsible for storing scope records to KeyValueStore
+         * 
+         * according Ralf's implementation 
+         *   this.keyval.putRecords(connectionId, scopeId, recNew);
+         *   is only called if "recordWrite.isEmpty"
+         *   why?
+         *   
+         *   if we have 2 scopes each with a read and write operation
+         *   the "else case" "keyset" returns no keys as there was no putRecords call before 
+         */
+        
+                
+        /* queries (scopes without writes)... */        
         if (recordsWrite.isEmpty()) {
 
             if (scope.getScopeState() == GraphQLIOScopeState.SUBSCRIBED) {
                 /* ...with subscriptions are remembered */
                 String[] rec = this.keyval.getRecords(connectionId, scopeId);
-                String[] recNew = scope.getStringifiedRecords().toArray(String[]::new);
+                List<String> records = scope.getStringifiedRecords();
+                String[] recNew = records.toArray(new String[records.size()]);
 
                 if (rec == null || rec.length == 0 || !Arrays.equals(rec, recNew)) {
                     this.keyval.putRecords(connectionId, scopeId, recNew);
@@ -164,16 +204,18 @@ public class GraphQLIOEvaluation {
         }
         /* mutations (scopes with writes) might outdate queries (scopes with reads) */
         else {
-
             /* determine all stored scope records */
             HashMap<String, List<String>> sids = new HashMap<>();
             Set<String> keys = this.keyval.getAllKeys();
             keys.forEach(key -> {
                 // CR 11072019 We should discuss about the compound key
+            	// coded analog RedisTemplate
                 String cid = KeyValStore.getConnectionId(key);
                 String sid = KeyValStore.getScopeId(key);
 
                 // CR 11072019 We should discuss the Algorithm
+                
+                /// ToDo check relation between (sid,cid)
                 if (!sids.containsKey(sid)) {
                     List<String> cids = new ArrayList<>();
                     cids.add(cid);
@@ -185,24 +227,16 @@ public class GraphQLIOEvaluation {
             HashMap<String, Boolean> checkedRecords = new HashMap<>(); // ??? key serialized String of records???? !!!!
 
             sids.keySet().forEach(sid -> {
-                if (sids.containsKey(sid)) {
+                /// check just once
+                if (outdatedSids.containsKey(sid))
+                    return;
 
-                    /// check just once
-                    if (outdatedSids.containsKey(sid) && !outdatedSids.get(sid).booleanValue())
-                        return;
+                sids.get(sid).forEach(cid -> {
 
-                    sids.get(sid).forEach(cid -> {
-
-                        /// check just once
-                        if (outdatedSids.containsKey(sid) && !outdatedSids.get(sid).booleanValue())
-                            return;
-
-                        boolean outdated = evaluateOutdatedSidPerCid(checkedRecords, recordsWrite, cid, sid);
-                        if (outdated)
-                            outdatedSids.put(sid, true);
-                    });
-
-                }
+                    boolean outdated = evaluateOutdatedSidPerCid(checkedRecords, recordsWrite, cid, sid);
+                    if (outdated)
+                        outdatedSids.put(sid, true);
+                });
             });
         }
 
@@ -212,43 +246,45 @@ public class GraphQLIOEvaluation {
         return list;
     }
 
-    // CR 11072019 What is this 
-    /// may stored records for <scopeId, connectionId>
-    /// if there are no more read records
+    // CR 11072019 What is this
+    
+    /// evaluate if scope is outdated for a particular connection
     private boolean evaluateOutdatedSidPerCid(Map<String, Boolean> checkedRecords, /// passes HashMap in real
             List<GraphQLIORecord> recordsWrite, String connectionId, String scopeId) {
 
         // fetch scope records value
-        String[] strRecordsRead = this.keyval.getRecords(connectionId, scopeId);
-        boolean recordsReadChecked = false;
-        String stringifiedRecordsRead = null;
-        if (strRecordsRead != null && strRecordsRead.length > 0) {
+        String[] strRecords = this.keyval.getRecords(connectionId, scopeId);
+        boolean recordsChecked = false;
+        String stringifiedRecords = null;
+        /// should be discussed with Ralf if this is really necessary and saves performance
+        if (strRecords != null && strRecords.length > 0) {
 
             StringBuilder sb = new StringBuilder();
-            for (String record : strRecordsRead) {
+            for (String record : strRecords) {
                 sb.append(record);
             }
-            stringifiedRecordsRead = sb.toString();
-            recordsReadChecked = checkedRecords.containsKey(stringifiedRecordsRead)
-                    && checkedRecords.get(stringifiedRecordsRead).booleanValue();
+            stringifiedRecords = sb.toString();
+            recordsChecked = checkedRecords.containsKey(stringifiedRecords);
         }
 
-        if (!recordsReadChecked) {
+        if (!recordsChecked) {
 
-            if (strRecordsRead == null || strRecordsRead.length == 0) {
+            if (strRecords == null || strRecords.length == 0) {
                 this.keyval.delete(connectionId, scopeId);
             } else {
                 List<GraphQLIORecord> recordsRead = new ArrayList<>();
-                for (String recordRead : strRecordsRead) {
-                    recordsRead.add(GraphQLIORecord.builder().stringified(recordRead).build());
+                for (String strRecord : strRecords) {
+                	GraphQLIORecord record = GraphQLIORecord.builder().stringified(strRecord).build();
+                	if ( record.op() ==  GraphQLIOOperationType.READ)
+                		recordsRead.add(record);
                 }
 
                 // check whether writes outdate reads
                 boolean outdated = GraphQLIOEvaluation.outdated(recordsWrite, recordsRead);
 
                 // remember that these scope records were already checked
-                if (stringifiedRecordsRead != null)
-                    checkedRecords.put(stringifiedRecordsRead, true);
+                if (stringifiedRecords != null)
+                    checkedRecords.put(stringifiedRecords, true);
 
                 if (outdated)
                     return true;
@@ -261,15 +297,33 @@ public class GraphQLIOEvaluation {
     }
 
     // CR 11072019 This Algorithm is open 
+    // Map<cid, <sids>>
+	// method is called by GraphQLIOWebSocketHandler::handleTextMessage
     public Map<String, Set<String>> evaluateOutdatedsSidsPerCid(List<String> sids,
             Collection<GraphQLIOConnection> connections) {
-        // ToDo : Implementation of the Algorithm
-        // Description : Iterate over all connections, Iterate over all scopes
-        // If scope has the sid and the right status insert into the List ...
-        // Source :
-        // https://github.com/rse/graphql-tools-subscribe/blob/master/src/gts-3-evaluation.js
-        // __scopeOutdatedEvent (sids) {
-        return null;
+
+    	Map<String, Set<String>> sidsPerCid = new HashMap<>();
+    	
+        Set<String> keys = this.keyval.getAllKeys();
+        keys.forEach(key -> {
+        	
+            String cid = KeyValStore.getConnectionId(key);
+            String sid = KeyValStore.getScopeId(key);
+
+            if (sids.contains(sid)) {
+            	if (!sidsPerCid.containsKey(cid)) {
+            		Set<String> sidSet = new HashSet<>(); 
+            		sidSet.add(sid);
+            		sidsPerCid.put(cid,  sidSet);
+            	}
+            	else {
+            		sidsPerCid.get(cid).add(sid);
+            	}            	
+            }
+        	
+        });
+    	
+        return sidsPerCid;
     }
 
     

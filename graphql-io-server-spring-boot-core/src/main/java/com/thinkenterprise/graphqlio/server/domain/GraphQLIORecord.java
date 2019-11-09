@@ -11,70 +11,72 @@ public class GraphQLIORecord {
 	
 	static final String REGEXPPATTERN = "^(?:(.+?)#(.+?)\\.(.+?)->)?(.+?)\\((.+?)\\)->(.+?)#\\{(.*?)\\}\\.\\{(.+?)\\}$";
 	
+		
     // Introduce GraphQLIOOperationType 
 	public enum GraphQLIOOperationType {
 
-		INVALID(""),
-		READ ("read"),
-		CREATE ("create"),
-		UPDATE ("update"),
-		DELETE ("delete");
-	
-		private String op;
 		
-		private GraphQLIOOperationType( String op) {
-			this.set(op);
-		}
-		
-		public String op() {
-			return this.op;
-		}
-
-		void set(String op) {
-			if ( op.equals("read") || 
-				 op.equals("create") || 
-				 op.equals("update") || 
-				 op.equals("delete") )	
-				this.op = op;
-			else
-				this.op = "";
-		}
-		
-		
-		public static EnumSet<GraphQLIOOperationType> cud = EnumSet.range(GraphQLIOOperationType.CREATE, GraphQLIOOperationType.DELETE );
-		public static EnumSet<GraphQLIOOperationType> ud = EnumSet.range(GraphQLIOOperationType.UPDATE, GraphQLIOOperationType.DELETE);
-				
+		NONE {
+			@Override
+	        public String toString() {
+	            return "";
+	        }
+	    },		
+		READ {
+			@Override
+	        public String toString() {
+	            return "read";
+	        }
+	    },		
+		CREATE {
+			@Override
+	        public String toString() {
+	            return "create";
+	        }
+	    },	
+		UPDATE {
+			@Override
+	        public String toString() {
+	            return "update";
+	        }
+	    },
+		DELETE {
+			@Override
+	        public String toString() {
+	            return "delete";
+	        }
+	    }
 	}
 
 	
     // Introduce GraphQLIOArityType 
 	public enum GraphQLIOArityType {
 		
-		INVALID(""),
-		ONE ("one"),
-		MANY("many"),
-		ALL ("all");
+		NONE {
+			@Override
+	        public String toString() {
+	            return "";
+	        }
+	    },
+		ONE {
+			@Override
+	        public String toString() {
+	            return "one";
+	        }
+	    },
+		MANY {
+			@Override
+	        public String toString() {
+	            return "many";
+	        }
+	    },
+		ALL {
+			@Override
+	        public String toString() {
+	            return "all";
+	        }
+	    }
 
-		private String arity;
-		
-		private GraphQLIOArityType(String arity) {
-			this.set(arity);
-		}
-		
-		public String arity() {
-			return arity;
-		}
-		
-		void set( String arity) {
-			if ( arity.equals("one")  ||  arity.equals("many") ||  arity.equals("all") )
-				this.arity = arity;
-			else
-				this.arity = "";
-		}
-
-		public static EnumSet<GraphQLIOArityType> multi = EnumSet.range(GraphQLIOArityType.MANY, GraphQLIOArityType.ALL );
-		
-		
 	}
 		
 	
@@ -145,8 +147,8 @@ public class GraphQLIORecord {
 		return 	( 	Objects.equals(this.srcType,r.srcType)	&& 
 					Objects.equals(this.srcId, r.srcId)		&&  
 					Objects.equals(this.srcAttr, r.srcAttr)	&&
-					Objects.equals(this.op.op(), r.op.op())	&&
-					Objects.equals(this.arity.arity(), r.arity.arity())		&&
+					Objects.equals(this.op.toString(), r.op.toString())	&&
+					Objects.equals(this.arity.toString(), r.arity.toString())		&&
 					Objects.equals(this.dstType, r.dstType)	&&
 					Arrays.equals(this.dstAttrs, r.dstAttrs) &&
 					Arrays.equals(this.dstIds, r.dstIds)	
@@ -183,7 +185,7 @@ public class GraphQLIORecord {
 		
 		/// manadatory attributes
 		/// op(arity)->dstType#{dstId1,dstId2}.{dstAttr1,dstAttr2}
-		str += op.op() + "(" + arity.arity() + ")->";
+		str += op.toString() + "(" + arity.toString() + ")->";
 		str += dstType + "#";
 
 		/// comma separated array of dstIds
@@ -245,10 +247,10 @@ public class GraphQLIORecord {
 		}
 
 		/// constructor with all mandatory fields
-		public GraphQLIORecordBuilder( String op, String arity, String dstType, String dstAttrs[], String dstIds[] )
+		public GraphQLIORecordBuilder( GraphQLIOOperationType op, GraphQLIOArityType arity, String dstType, String dstAttrs[], String dstIds[] )
 		{
-			this.op.set(op);
-			this.arity.set(arity);
+			this.op=op;
+			this.arity=arity;
 			this.dstType = dstType;
 			this.dstAttrs = dstAttrs;
 			this.dstIds = dstIds;			
@@ -269,13 +271,13 @@ public class GraphQLIORecord {
 			return this;
 		}
 				
-		public GraphQLIORecordBuilder op(String op ) {
-			this.op.set(op);
+		public GraphQLIORecordBuilder op(GraphQLIOOperationType op ) {
+			this.op=op;
 			return this;
 		}
 
-		public GraphQLIORecordBuilder arity(String arity ) {
-			this.arity.set(arity);
+		public GraphQLIORecordBuilder arity(GraphQLIOArityType arity ) {
+			this.arity=arity;
 			return this;
 		}
 		
@@ -330,6 +332,30 @@ public class GraphQLIORecord {
 		        }		        
 			}
 			
+		}
+
+		private void arity(String arity) {
+			if (arity.equals("one"))
+				this.arity = GraphQLIOArityType.ONE;
+			else if (arity.equals("many"))
+				this.arity = GraphQLIOArityType.MANY;
+			else if (arity.equals("all"))
+				this.arity = GraphQLIOArityType.ALL;
+			else
+				this.arity = GraphQLIOArityType.NONE;	
+		}
+
+		private void op(String op) {
+			if (op.equals("read") )
+				this.op = GraphQLIOOperationType.READ;
+			else if (op.equals("create") )
+				this.op = GraphQLIOOperationType.CREATE;
+			else if (op.equals("update") ) 
+				this.op = GraphQLIOOperationType.UPDATE;
+			else if (op.equals("delete") )	
+				this.op = GraphQLIOOperationType.DELETE;
+			else 
+				this.op = GraphQLIOOperationType.NONE;			
 		}
 				
 	}

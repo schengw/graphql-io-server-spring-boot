@@ -50,7 +50,8 @@ public class GraphQLIOWebSocketHandler extends AbstractWebSocketHandler {
 	@Autowired
 	private GraphQLIOExecutionStrategy graphQLIOQueryExecutionStrategy;
 
-	private GraphQLIOEvaluation graphQLIOEvaluation = new GraphQLIOEvaluation();
+	@Autowired
+	private GraphQLIOEvaluation graphQLIOEvaluation;
 
 	@Override
 	protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {

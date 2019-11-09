@@ -25,7 +25,7 @@ public class KeyValStore {
 	
 	public static String getConnectionId(String key) {
 		int indexCid =  key.indexOf("cid:") + 4;
-		int indexSid = key.indexOf(":sid:") + 5;
+		int indexSid = key.indexOf(":sid:");
 		assert (indexCid == 4 &&  indexSid > 4);
 		
 		if (indexCid == 4 &&  indexSid > 4) {
@@ -50,7 +50,7 @@ public class KeyValStore {
 	}
 	
 	public void putRecords(String connectionId, String scopeId, String[] records) {
-		String value = Integer.toString(records.length) + "@" + String.join(" ", records);
+		String value = String.join("@", records);
 		hashMap.put(generateKey(connectionId, scopeId), value);		
 	}
 
@@ -59,13 +59,10 @@ public class KeyValStore {
 	}
 
 	public String[] getRecords(String connectionId, String scopeId) {
-		String[] parts = hashMap.get(generateKey(connectionId, scopeId)).split("\\@");
-		assert (parts.length == 2);
-		if (parts.length == 2) {
-			return parts[1].split(" ");
-		}
-		else
+		String value = hashMap.get(generateKey(connectionId, scopeId));
+		if ( value == null)
 			return null;
+		return value.split("\\@");
 	}
 
 	public String delete (String connectionId, String scopeId) {
