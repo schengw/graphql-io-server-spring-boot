@@ -1,4 +1,4 @@
-package com.thinkenterprise.graphqlio.server.wbf.domain;
+package com.thinkenterprise.graphqlio.server.wsf.domain;
 
 public enum FrameType {
 	GRAPQLREQUEST {

@@ -1,6 +1,6 @@
-package com.thinkenterprise.graphqlio.server.wbf.event;
+package com.thinkenterprise.graphqlio.server.wsf.event;
 
-import com.thinkenterprise.graphqlio.server.wbf.domain.Frame;
+import com.thinkenterprise.graphqlio.server.wsf.domain.Frame;
 
 import org.springframework.context.ApplicationEvent;
 

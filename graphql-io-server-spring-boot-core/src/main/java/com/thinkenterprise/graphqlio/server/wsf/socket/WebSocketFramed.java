@@ -1,15 +1,13 @@
-package com.thinkenterprise.graphqlio.server.wbf.socket;
+package com.thinkenterprise.graphqlio.server.wsf.socket;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.thinkenterprise.graphqlio.server.wbf.codec.Codec;
-import com.thinkenterprise.graphqlio.server.wbf.converter.Converter;
-import com.thinkenterprise.graphqlio.server.wbf.event.InboundFrameEvent;
+import com.thinkenterprise.graphqlio.server.wsf.codec.Codec;
+import com.thinkenterprise.graphqlio.server.wsf.converter.Converter;
+import com.thinkenterprise.graphqlio.server.wsf.event.InboundFrameEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.web.socket.BinaryMessage;
@@ -20,7 +18,6 @@ import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 public class WebSocketFramed extends AbstractWebSocketHandler implements ApplicationListener<InboundFrameEvent> {
 
-	private final Logger logger = LoggerFactory.getLogger(WebSocketFramed.class);
 
 	private Map<String, WebSocketSession> webSocketSessions = new ConcurrentHashMap<String, WebSocketSession>();
 

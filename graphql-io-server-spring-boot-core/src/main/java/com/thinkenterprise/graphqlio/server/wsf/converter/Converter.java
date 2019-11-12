@@ -1,6 +1,6 @@
-package com.thinkenterprise.graphqlio.server.wbf.converter;
+package com.thinkenterprise.graphqlio.server.wsf.converter;
 
-import com.thinkenterprise.graphqlio.server.wbf.domain.Frame;
+import com.thinkenterprise.graphqlio.server.wsf.domain.Frame;
 
 /**
  * Converter

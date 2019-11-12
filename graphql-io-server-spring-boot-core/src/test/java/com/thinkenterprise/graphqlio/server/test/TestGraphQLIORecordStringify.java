@@ -10,11 +10,13 @@ import com.thinkenterprise.graphqlio.server.domain.GraphQLIORecord;
 import com.thinkenterprise.graphqlio.server.domain.GraphQLIORecord.GraphQLIOArityType;
 import com.thinkenterprise.graphqlio.server.domain.GraphQLIORecord.GraphQLIOOperationType;
 
+// Review 11112019: Should be a normal JUnit Test, right? 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class TestGraphQLIORecordStringify {
 	
 	final org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger();
+	
 	
 	@Test
 	public void testStringify() {

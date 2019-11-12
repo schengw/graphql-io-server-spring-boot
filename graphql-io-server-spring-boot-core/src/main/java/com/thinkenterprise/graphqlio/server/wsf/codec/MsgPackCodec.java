@@ -1,4 +1,4 @@
-package com.thinkenterprise.graphqlio.server.wbf.codec;
+package com.thinkenterprise.graphqlio.server.wsf.codec;
 
 /**
  * CBORCodec
