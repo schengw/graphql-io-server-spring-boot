@@ -5,8 +5,8 @@ package com.thinkenterprise.graphqlio.server.wsf.codec;
  */
 public interface Codec {
 
-   String decode(byte[] data);
-   byte[] encode(String data);
-    
+	String decode(byte[] data) throws Exception;
+
+	byte[] encode(String data) throws Exception;
 
 }
